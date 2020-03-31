@@ -7,22 +7,22 @@ import {
   renameTemplateFiles,
   Rule,
   SchematicContext,
+  SchematicsException,
   template,
   Tree,
-  url,
-  SchematicsException
+  url
 } from '@angular-devkit/schematics';
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { getWorkspace } from 'schematics-utilities/dist/angular/config';
 import {
+  addPackageJsonDependency,
   NodeDependency,
-  NodeDependencyType,
-  addPackageJsonDependency
+  NodeDependencyType
 } from 'schematics-utilities/dist/angular/dependencies';
-import { getProjectFromWorkspace } from 'schematics-utilities/dist/material/get-project';
 import { getStylesPath } from 'schematics-utilities/dist/material/ast';
-import { modifyStylesSCSS } from './utility/ast-utils';
+import { getProjectFromWorkspace } from 'schematics-utilities/dist/material/get-project';
 import { Schema } from './schema';
+import { modifyStylesSCSS } from './utility/ast-utils';
 
 export function ngAdd(_options: Schema): Rule {
   return chain([
@@ -110,7 +110,7 @@ function addNPMScripts() {
 
     const strPkgContent = JSON.parse(bufPkgContent.toString());
 
-    if (bufPkgContent.toString().indexOf('build:ngelement') == -1) {
+    if (bufPkgContent.toString().indexOf('setup:bootstrap') == -1) {
       strPkgContent.scripts['setup:bootstrap'] = `node setup-bootstrap.js`;
       context.logger.log('info', `✔️        addNPMScripts running`);
     }
