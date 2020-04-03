@@ -1,6 +1,7 @@
 import {
   apply,
   chain,
+  MergeStrategy,
   mergeWith,
   move,
   noop,
@@ -14,15 +15,12 @@ import {
 } from '@angular-devkit/schematics';
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { getWorkspace } from 'schematics-utilities/dist/angular/config';
-import {
-  addPackageJsonDependency,
-  NodeDependency,
-  NodeDependencyType
-} from 'schematics-utilities/dist/angular/dependencies';
+import { addPackageJsonDependency } from 'schematics-utilities/dist/angular/dependencies';
 import { getStylesPath } from 'schematics-utilities/dist/material/ast';
 import { getProjectFromWorkspace } from 'schematics-utilities/dist/material/get-project';
 import { Schema } from './schema';
 import { modifyStylesSCSS } from './utility/ast-utils';
+import { dependencies } from './versions';
 
 export function ngAdd(_options: Schema): Rule {
   return chain([
@@ -40,24 +38,6 @@ export function ngAdd(_options: Schema): Rule {
 
 function addPackageJsonDependencies(): Rule {
   return (host: Tree, context: SchematicContext) => {
-    const dependencies: NodeDependency[] = [
-      {
-        type: NodeDependencyType.Default,
-        version: '^4.4.1',
-        name: 'bootstrap'
-      },
-      {
-        type: NodeDependencyType.Dev,
-        version: '^8.1.0',
-        name: 'fs-extra'
-      },
-      {
-        type: NodeDependencyType.Dev,
-        version: '^5.0.2',
-        name: 'replace-in-file'
-      }
-    ];
-
     dependencies.forEach(dependency => {
       addPackageJsonDependency(host, dependency);
       context.logger.log(
@@ -92,7 +72,10 @@ function createBootstrapDefinition(_options: Schema) {
       move('/')
     ]);
 
-    host = mergeWith(sourceParametrizeTemplate)(host, context) as Tree;
+    host = mergeWith(sourceParametrizeTemplate, MergeStrategy.Overwrite)(
+      host,
+      context
+    ) as Tree;
 
     context.logger.log('info', `✔️        CreateBundleScript running`);
     return host;
@@ -111,7 +94,9 @@ function addNPMScripts() {
     const strPkgContent = JSON.parse(bufPkgContent.toString());
 
     if (bufPkgContent.toString().indexOf('setup:bootstrap') == -1) {
-      strPkgContent.scripts['setup:bootstrap'] = `node setup-bootstrap.js`;
+      strPkgContent.scripts[
+        'setup:bootstrap'
+      ] = `ts-node -P ./tasks/tsconfig.tasks.json ./tasks/setup-bootstrap.ts`;
       context.logger.log('info', `✔️        addNPMScripts running`);
     }
 

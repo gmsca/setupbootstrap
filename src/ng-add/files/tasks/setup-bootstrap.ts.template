@@ -1,0 +1,38 @@
+import { copy, ensureDir } from 'fs-extra';
+import replaceInFile from 'replace-in-file';
+
+const bootstrapFilePath = './src/scss/_bootstrap.scss';
+const customVariablesFilePath = './src/scss/_customVariables.scss';
+
+const replaceScssPath = {
+  files: bootstrapFilePath,
+  from: / "/g,
+  to: ' "~bootstrap/scss/'
+};
+const replaceVariablesPath = {
+  files: bootstrapFilePath,
+  from: '~bootstrap/scss/variables',
+  to: 'customVariables'
+};
+
+ensureDir('./src/scss/');
+
+copy(`node_modules/bootstrap/scss/bootstrap.scss`, bootstrapFilePath, err => {
+  if (err) {
+    return console.error(err);
+  }
+  replaceInFile.sync(replaceScssPath);
+  replaceInFile.sync(replaceVariablesPath);
+  console.log(`_bootstrap.scss success!`);
+});
+
+copy(
+  `node_modules/bootstrap/scss/_variables.scss`,
+  customVariablesFilePath,
+  err => {
+    if (err) {
+      return console.error(err);
+    }
+    console.log(`_customVariables.scss success!`);
+  }
+);
