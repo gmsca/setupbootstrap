@@ -38,7 +38,7 @@ export function ngAdd(_options: Schema): Rule {
 
 function addPackageJsonDependencies(): Rule {
   return (host: Tree, context: SchematicContext) => {
-    dependencies.forEach(dependency => {
+    dependencies.forEach((dependency) => {
       addPackageJsonDependency(host, dependency);
       context.logger.log(
         'info',
@@ -64,8 +64,16 @@ function installPackageJsonDependencies(): Rule {
 
 function createBootstrapDefinition(_options: Schema) {
   return (host: Tree, context: SchematicContext) => {
+    const workspace = getWorkspace(host);
+    const project = getProjectFromWorkspace(
+      workspace,
+      _options.project
+        ? _options.project
+        : Object.keys(workspace['projects'])[0]
+    );
     const sourceTemplate = url('./files');
 
+    _options.projectSourceRoot = project.sourceRoot;
     const sourceParametrizeTemplate = apply(sourceTemplate, [
       renameTemplateFiles(),
       template({ ..._options }),

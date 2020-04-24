@@ -1,6 +1,6 @@
 {
   "name": "@gmsca/setupbootstrap",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "setup Bootstrap latest version to Angular project",
   "scripts": {
     "ng": "ng",
